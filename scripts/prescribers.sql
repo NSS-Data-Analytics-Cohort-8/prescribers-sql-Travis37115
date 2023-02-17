@@ -15,19 +15,60 @@ ON prescriber.npi = prescription.npi
 GROUP BY first_name, last_name, title
 ORDER BY total_claims DESC
 LIMIT 1;
+--Answer Bruce Pendley, Family Practice, 99707 claims and the npi is 1,881,634,483
+
 -- 2.a. Which specialty had the most total number of claims (totaled over all drugs)?
+SELECT specialty_description, SUM(total_claim_count) AS total_of_claims
+FROM prescriber 
+INNER JOIN prescription 
+ON prescriber.npi =  prescription.npi
+GROUP BY specialty_description
+ORDER BY total_of_claims DESC;
+--Answer is Family Practice with 9,752,347
 
 -- b. Which specialty had the most total number of claims for opioids?
+SELECT specialty_description,  SUM(total_claim_count) AS claim_amount
+FROM prescription
+INNER JOIN prescriber
+USING(npi)
+INNER JOIN drug
+USING(drug_name)
+WHERE opioid_Drug_flag ='Y'
+GROUP BY specialty_description
+ORDER BY claim_amount DESC;
+--Answer is Nurse Practitioner with 900,845 total number of claims
+
 
 -- c. Challenge Question: Are there any specialties that appear in the prescriber table that have no associated prescriptions in the prescription table?
 
 -- d. Difficult Bonus: Do not attempt until you have solved all other problems! For each specialty, report the percentage of total claims by that specialty which are for opioids. Which specialties have a high percentage of opioids?
 
 -- 3.a. Which drug (generic_name) had the highest total drug cost?
+SELECT SUM(total_drug_cost) AS drug_cost, generic_name
+FROM drug
+INNER JOIN prescription
+USING(drug_name)
+GROUP BY generic_name
+ORDER BY drug_cost DESC;
+--answer is Insulin with a cost of 104,264,066.35
 
 -- b. Which drug (generic_name) has the hightest total cost per day? Bonus: Round your cost per day column to 2 decimal places. Google ROUND to see how this works.
+SELECT ROUND(SUM(total_drug_cost) / 365,2) AS prescript_cost, generic_name
+FROM drug
+INNER JOIN prescription 
+USING(drug_name)
+GROUP BY generic_name
+ORDER BY prescript_cost DESC
+--Answer Insulin with a cost of 285,654.98
 
 -- 4.a. For each drug in the drug table, return the drug name and then a column named 'drug_type' which says 'opioid' for drugs which have opioid_drug_flag = 'Y', says 'antibiotic' for those drugs which have antibiotic_drug_flag = 'Y', and says 'neither' for all other drugs.
+SELECT  drug_name, 
+CASE 
+	WHEN opioid_drug_flag = 'Y' THEN 'opioid' 
+	WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+	ELSE 'neither' 
+	END AS drug_type 
+FROM drug;
 
 -- b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
 
