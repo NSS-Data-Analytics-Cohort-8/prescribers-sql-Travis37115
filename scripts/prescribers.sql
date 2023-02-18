@@ -70,7 +70,20 @@ CASE
 	END AS drug_type 
 FROM drug;
 
--- b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision.
+-- b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics. Hint: Format the total costs as MONEY for easier comparision. 
+SELECT  SUM(total_drug_cost), 
+CASE 
+	WHEN opioid_drug_flag = 'Y' THEN 'opioid' 
+	WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+	ELSE 'neither' 
+	END AS drug_type 
+FROM drug
+INNER JOIN prescription
+USING (drug_name)
+WHERE opioid_drug_flag = 'Y' 
+OR antibiotic_drug_flag = 'Y'
+GROUP BY antibiotic_drug_flag, opioid_drug_flag
+--answer Much more was spent on opioids with the total as 105,080,626.37
 
 -- 5.a. How many CBSAs are in Tennessee? Warning: The cbsa table contains information for all states, not just Tennessee.
 
